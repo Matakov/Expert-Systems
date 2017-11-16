@@ -1,7 +1,19 @@
-from tkinter import *
-from tkinter import filedialog
-from tkinter import ttk
-from tkinter import messagebox as mBox
+import sys
+
+if sys.version_info[0] < 3:
+	#python 2
+	from Tkinter import *
+	import tkFileDialog as filedialog
+	import ttk
+	import tkMessageBox as mBox
+	import clips
+else:
+	#python 3
+	from tkinter import *
+	from tkinter import filedialog
+	from tkinter import ttk
+	from tkinter import messagebox as mBox
+
 
 # class Window, inheriting from the Frame class.
 
