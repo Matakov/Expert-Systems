@@ -6,6 +6,7 @@ if sys.version_info[0] < 3:
 	import tkFileDialog as filedialog
 	import ttk
 	import tkMessageBox as mBox
+	#import clips6
 	import clips
 else:
 	#python 3
@@ -32,10 +33,10 @@ class Window(Frame):
     # creation of init_window
     def init_window(self):
         # changing the title of our master widget
-        self.master.title("Monetary Incentive Delay Task")
+        self.master.title("Fault diagnostics program")
 
         # allowing the widget to take the full space of the root window
-        self.pack(fill=BOTH, expand=1)
+        #self.pack(fill=BOTH, expand=1)
 
         # creating a menu instance
         menu = Menu(self.master)
@@ -67,13 +68,55 @@ class Window(Frame):
         # added "Simulation" to our menu
         menu.add_cascade(label="Simulation", menu=simMenu)
         simMenu.add_command(label="Parameters", command=self.paramWin)
-     #   simMenu.add_command(label="Analysis", command=hello)
+     	# simMenu.add_command(label="Analysis", command=hello)
 
         # Add another Menu to the Menu Bar and an item
         helpMenu = Menu(menu, tearoff=0)
         menu.add_cascade(label="Help", menu=helpMenu)
         helpMenu.add_command(label="Documentation", command=self.msgBox)
         helpMenu.add_command(label="About", command=self.msgBox)
+
+		
+        tkvar = StringVar(self.master)
+        # Dictionary with options
+        choices = {'Pizza','Lasagne','Fries','Fish','Potatoe'}
+        
+	tkvar.set('Pizza') # set the default option
+
+	#Pop-up menu
+	popupMenu = OptionMenu(self.master, tkvar, *choices)
+	popupMenu.config(width=15, height=5)
+	
+	#Label        
+	Label(self.master, text="Choose a simptom", height=5).grid(row = 0, column = 0)#, padx = 40, pady = 40)
+        popupMenu.grid(row = 1, column = 0)#,padx = 40)
+
+	#add button	
+	button = Button(self.master, text='+', width=15, height=5, command=lambda:self.add_simptom(tkvar.get()))
+	button.grid(row = 1, column = 1)#,padx = 40)
+	#"""
+
+	self.TextArea = Text()
+	self.ScrollBar = Scrollbar(self.master)
+	self.ScrollBar.config(command=self.TextArea.yview)
+	self.TextArea.config(yscrollcommand=self.ScrollBar.set)
+	self.ScrollBar.grid(row = 1, column = 3, rowspan = 2)
+	self.TextArea.grid(row = 2, columnspan = 2)
+
+    def add_simptom(self, value):
+	# get data so far in textbox
+	data = self.TextArea.get(0.0, END)
+	split_data = data.split("\n")
+	#print len(split_data)
+	ifIn = 0
+	# look if there is already that value inside textbox
+	for inputs in split_data:
+		if(inputs == value):
+			ifIn = 1
+	# if value is not in, add it
+	if not ifIn:
+		self.TextArea.insert(END,value+"\n")
+	pass
 
     def paramWin(self):
         gringo = Tk()
@@ -96,7 +139,7 @@ class Window(Frame):
 
     # Display a Message Box, Callback function
     def msgBox(self):
-        mBox.showinfo('About the software', 'Version 1.0\nFER 2017\nAuthors: Babic, Farszky, Miskulin')
+        mBox.showinfo('About the software', 'Version 1.0\nFER 2017\nAuthors: Matkovic, Miskulin')
 
     def client_new(self):
         root = Tk()
