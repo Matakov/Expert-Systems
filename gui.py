@@ -214,14 +214,34 @@ class ParametersWin(Frame):
         self.master.title("Parameters")
         self.pack(fill=BOTH, expand=1)
 
-        tabControl = ttk.Notebook(self) # create Tab Control
-        tabScan = Frame(tabControl)  # Create a tab
-        tabControl.add(tabScan, text=' Pre-scan ')  # Add the tab
-        tabOne = Frame(tabControl) # Create a tab
-        tabControl.add(tabOne, text=' Simple Reaction Time ')  # Add the tab
-        tabTwo = Frame(tabControl)  # Create a tab
-        tabControl.add(tabTwo, text=' Monetary Incentive Delay ')  # Add the tab
-        tabControl.pack(expand=1, fill="both")  # Pack to make visible
+        self.tabControl = ttk.Notebook(self) # create Tab Control
+        self.tabScan = Frame(self.tabControl)  # Create a tab
+        self.tabControl.add(self.tabScan, text=' Add rule ')  # Add the tab
+        #self.tabOne = Frame(self.tabControl) # Create a tab
+        #self.tabControl.add(self.tabOne, text=' Simple Reaction Time ')  # Add the tab
+        #self.tabTwo = Frame(self.tabControl)  # Create a tab
+        #self.tabControl.add(self.tabTwo, text=' Monetary Incentive Delay ')  # Add the tab
+        self.tabControl.pack(side="top",expand=1, fill="both")  # Pack to make visible
+
+	#entry to add malfunction	
+	self.e = Entry(self.tabScan)
+	self.e.pack(side="top",padx=50, pady=50)
+
+	self.e.delete(0, END)
+	self.e.insert(0, "add malfunction")
+
+	self.Button = Button(self.tabScan, text='add', width=15, height=5, command=lambda:self.add_rule(self.e.get(),self.Area.get(0.0, END)))
+	self.Button.pack(side="bottom",padx=0, pady=0)
+
+	self.Area = Text(self.tabScan)
+	self.Area.pack(side="left",padx=50, pady=50)
+
+    def add_rule(self,rule, things):
+	print rule, things
+	self.Area.delete(0.0,END)
+	self.e.delete(0,END)
+	self.e.insert(0, "add malfunction")
+	pass
 
 
 class SimulationPage(Frame):
