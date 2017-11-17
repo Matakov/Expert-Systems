@@ -8,6 +8,7 @@ if sys.version_info[0] < 3:
 	import tkMessageBox as mBox
 	#import clips6
 	import clips
+	clips.Reset()
 else:
 	#python 3
 	from tkinter import *
@@ -66,8 +67,8 @@ class Window(Frame):
         # command it runs on event is client_exit
 
         # added "Simulation" to our menu
-        menu.add_cascade(label="Simulation", menu=simMenu)
-        simMenu.add_command(label="Parameters", command=self.paramWin)
+        menu.add_cascade(label="Rules", menu=simMenu)
+        simMenu.add_command(label="Add rules", command=self.paramWin)
      	# simMenu.add_command(label="Analysis", command=hello)
 
         # Add another Menu to the Menu Bar and an item
@@ -78,9 +79,8 @@ class Window(Frame):
 
 		
         tkvar = StringVar(self.master)
-        # Dictionary with options
-        choices = {'Pizza','Lasagne','Fries','Fish','Potatoe'}
-        
+	# Dictionary with options
+	choices = {'Pizza','Lasagne','Fries','Fish','Potatoe'}
 	tkvar.set('Pizza') # set the default option
 
 	#Pop-up menu
@@ -89,13 +89,18 @@ class Window(Frame):
 	
 	#Label        
 	Label(self.master, text="Choose a simptom", height=5).grid(row = 0, column = 0)#, padx = 40, pady = 40)
-        popupMenu.grid(row = 1, column = 0)#,padx = 40)
+	popupMenu.grid(row = 1, column = 0)#,padx = 40)
 
 	#add button	
-	button = Button(self.master, text='+', width=15, height=5, command=lambda:self.add_simptom(tkvar.get()))
-	button.grid(row = 1, column = 1)#,padx = 40)
+	addButton = Button(self.master, text='+', width=15, height=5, command=lambda:self.add_simptom(tkvar.get()))
+	addButton.grid(row = 0, column = 1)#,padx = 40)
+
+	#remove button	
+	removeButton = Button(self.master, text='-', width=15, height=5, command=lambda:self.remove_simptom(tkvar.get()))
+	removeButton.grid(row = 1, column = 1)#,padx = 40)
 	#"""
 
+	#text area where user will have preview of possible simptoms
 	self.TextArea = Text()
 	self.ScrollBar = Scrollbar(self.master)
 	self.ScrollBar.config(command=self.TextArea.yview)
@@ -103,6 +108,7 @@ class Window(Frame):
 	self.ScrollBar.grid(row = 1, column = 3, rowspan = 2)
 	self.TextArea.grid(row = 2, columnspan = 2)
 
+	#Add simptoms to find error
     def add_simptom(self, value):
 	# get data so far in textbox
 	data = self.TextArea.get(0.0, END)
@@ -117,6 +123,19 @@ class Window(Frame):
 	if not ifIn:
 		self.TextArea.insert(END,value+"\n")
 	pass
+
+    def remove_simptom(self, value):
+	# get data so far in textbox
+	data = self.TextArea.get(0.0, END)
+	split_data = data.split()
+	self.TextArea.delete(0.0,END)
+	# look if there is already that value inside textbox and if it is, do not add it (remove it)
+	print(len(split_data))
+	for inputs in split_data:
+		if(inputs != value):
+			if(inputs != "\n"):
+				in2 = " ".join(inputs.split())
+				self.TextArea.insert(END,in2.strip()+"\n")
 
     def paramWin(self):
         gringo = Tk()
