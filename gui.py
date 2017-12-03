@@ -1,19 +1,21 @@
 import sys
+import os
+import subprocess
 
 if sys.version_info[0] < 3:
-	#python 2
-	from Tkinter import *
-	import tkFileDialog as filedialog
-	import ttk
-	import tkMessageBox as mBox
-	#import clips6
-	import clips
+    # python 2
+    from Tkinter import *
+    import tkFileDialog as filedialog
+    import ttk
+    import tkMessageBox as mBox
+    # import clips6
+    # import clips
 else:
-	#python 3
-	from tkinter import *
-	from tkinter import filedialog
-	from tkinter import ttk
-	from tkinter import messagebox as mBox
+    # python 3
+    from tkinter import *
+    from tkinter import filedialog
+    from tkinter import ttk
+    from tkinter import messagebox as mBox
 
 
 # class Window, inheriting from the Frame class.
@@ -33,92 +35,119 @@ class Window(Frame):
     # creation of init_window
     def init_window(self):
         # changing the title of our master widget
-        self.master.title("Fault diagnostics program")
+        self.master.title("Fault diagnostics")
 
         # allowing the widget to take the full space of the root window
-        #self.pack(fill=BOTH, expand=1)
+        self.pack(fill=BOTH, expand=1)
 
         # creating a menu instance
         menu = Menu(self.master)
         self.master.config(menu=menu)
 
         # create the file object
-        fileMenu = Menu(menu)
+        file_menu = Menu(menu)
 
         # adds a command to the menu option, calling it exit, and the command it runs on event is client_exit
-        fileMenu.add_command(label="New", command=self.client_new)
-        fileMenu.add_command(label="Open", command=self.client_open)
-        fileMenu.add_command(label="Save", command=self.client_save)
-        fileMenu.add_command(label="Save As", command=self.client_saveas)
-        fileMenu.add_separator()
-        #fileMenu.add_command(label="SRT", command=self.client_srt)
-        #fileMenu.add_command(label="MID", command=self.client_mid)
-        fileMenu.add_separator()
-        fileMenu.add_command(label="Exit", command=self.client_exit)
+        file_menu.add_command(label="New", command=self.client_new)
+        file_menu.add_command(label="Open", command=self.client_open)
+        file_menu.add_command(label="Save", command=self.client_save)
+        file_menu.add_command(label="Save As", command=self.client_saveas)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.client_exit)
 
         # added "File" to our menu
-        menu.add_cascade(label="File", menu=fileMenu)
+        menu.add_cascade(label="File", menu=file_menu)
 
-        # create the file object
-        simMenu = Menu(menu, tearoff=0)
+        # create the rule object
+        rule_menu = Menu(menu, tearoff=0)
 
         # adds a command to the menu option, calling it exit, and the
         # command it runs on event is client_exit
 
-        # added "Simulation" to our menu
-        menu.add_cascade(label="Simulation", menu=simMenu)
-        simMenu.add_command(label="Parameters", command=self.paramWin)
-     	# simMenu.add_command(label="Analysis", command=hello)
+        # added "Rules" to our menu
+        menu.add_cascade(label="Rules", menu=rule_menu)
+        rule_menu.add_command(label="Add new...", command=self.ruleWin)
 
         # Add another Menu to the Menu Bar and an item
-        helpMenu = Menu(menu, tearoff=0)
-        menu.add_cascade(label="Help", menu=helpMenu)
-        helpMenu.add_command(label="Documentation", command=self.msgBox)
-        helpMenu.add_command(label="About", command=self.msgBox)
+        help_menu = Menu(menu, tearoff=0)
+        menu.add_cascade(label="Help", menu=help_menu)
+        #help_menu.add_command(label="Presentation", command=self.openPDF("filename.pdf"))
+        #help_menu.add_command(label="Documentation", command=self.openPDF("filename.pdf"))
+        help_menu.add_separator()
+        help_menu.add_command(label="About", command=self.msgBox)
 
-		
-        tkvar = StringVar(self.master)
-        # Dictionary with options
-        choices = {'Pizza','Lasagne','Fries','Fish','Potatoe'}
-        
-	tkvar.set('Pizza') # set the default option
+        Label(self.master, text="Select symptoms:").pack(side=TOP)#.grid(column=0, row=0)
+        combo_master = Combos(self.master)
+        combo_one = combo_master.add_combo('readonly', (1, 2, 3, 4, 5))
+        combo_two = combo_master.add_combo('readonly', (6, 7, 8, 9, 10))
+        # combo_two.configure(state='disabled')
 
-	#Pop-up menu
-	popupMenu = OptionMenu(self.master, tkvar, *choices)
-	popupMenu.config(width=15, height=5)
-	
-	#Label        
-	Label(self.master, text="Choose a simptom", height=5).grid(row = 0, column = 0)#, padx = 40, pady = 40)
-        popupMenu.grid(row = 1, column = 0)#,padx = 40)
+        # add separator between comboboxes and text area
+        ttk.Separator(self.master, orient=HORIZONTAL).pack(pady=10, padx=5, ipadx=300, ipady=5)
 
-	#add button	
-	button = Button(self.master, text='+', width=15, height=5, command=lambda:self.add_simptom(tkvar.get()))
-	button.grid(row = 1, column = 1)#,padx = 40)
-	#"""
+        # text area where user will have preview of possible symptoms
+        textarea = Text(self.master, state='disabled').pack()
+        #textarea.grid(row=6, column=0)
 
-	self.TextArea = Text()
-	self.ScrollBar = Scrollbar(self.master)
-	self.ScrollBar.config(command=self.TextArea.yview)
-	self.TextArea.config(yscrollcommand=self.ScrollBar.set)
-	self.ScrollBar.grid(row = 1, column = 3, rowspan = 2)
-	self.TextArea.grid(row = 2, columnspan = 2)
 
-    def add_simptom(self, value):
-	# get data so far in textbox
-	data = self.TextArea.get(0.0, END)
-	split_data = data.split("\n")
-	#print len(split_data)
-	ifIn = 0
-	# look if there is already that value inside textbox
-	for inputs in split_data:
-		if(inputs == value):
-			ifIn = 1
-	# if value is not in, add it
-	if not ifIn:
-		self.TextArea.insert(END,value+"\n")
-	pass
+        #combo_one.bind('<<ComboboxSelected>>', self.add_simptom(combo_one.get(), textarea))
 
-    def paramWin(self):
+    def add_simptom(self, value, text_area):
+        # get data so far in textbox
+        data = text_area.get(0.0, END)
+        split_data = data.split("\n")
+        # print len(split_data)
+        ifIn = 0
+        # look if there is already that value inside textbox
+        for inputs in split_data:
+            if (inputs == value):
+                ifIn = 1
+        # if value is not in, add it
+        if not ifIn:
+            self.text_area.insert(END, value + "\n")
+        pass
+
+    def remove_simptom(self, value):
+        # get data so far in textbox
+        data = self.TextArea.get(0.0, END)
+        split_data = data.split()
+        self.TextArea.delete(0.0, END)
+        # look if there is already that value inside textbox and if it is, do not add it (remove it)
+        print(len(split_data))
+        for inputs in split_data:
+            if (inputs != value):
+                if (inputs != "\n"):
+                    in2 = " ".join(inputs.split())
+                    self.TextArea.insert(END, in2.strip() + "\n")
+
+    '''
+            # Label(self.master, text="Select your symptom:").grid(column=1, row=0)
+            combo_one = self.addCombo(1, 3, 'readonly')
+            # combo_two = self.addCombo(2, 3, 'disabled', self.changeComboParam(combo_one, self.combo_two))
+            #combo_one.bind('<<ComboboxSelected>>', self.enableCombo)
+            #self.addCombo(2, 3)
+
+            Combos(self.master)
+
+        def changeComboParam(self, combo_en, combo_dis):
+            if combo_en.get() == '2':
+                combo_dis.configure(state='readonly')
+            else:
+                pass
+
+        def addCombo(self, r, c, s, ccp=None):
+            symptom = StringVar()
+            newCombo = ttk.Combobox(self.master, width=40, textvariable=symptom, state=s, postcommand=ccp)
+            newCombo['values'] = (1, 2, 10, 42, 100)
+            newCombo.grid(column=c, row=r)
+            # newCombo.current(0)
+            return newCombo
+    '''
+
+
+
+
+    def ruleWin(self):
         gringo = Tk()
         gringo.geometry("500x500")
 
@@ -127,15 +156,6 @@ class Window(Frame):
 
         # mainloop
         gringo.mainloop()
-
-    def simPage(self):
-        root.geometry("600x500")
-
-        # creation of an instance
-        app = SimulationPage(root)
-
-        # mainloop
-        root.mainloop()
 
     # Display a Message Box, Callback function
     def msgBox(self):
@@ -182,17 +202,42 @@ class Window(Frame):
         #frame = self.frames[page_name]
         #frame.tkraise()
 
+    def openPDF(self, filename):
+        if sys.platform == "win32":
+           os.startfile(filename)
+        else:
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+            subprocess.call([opener, filename])
+
+
+
+class Combos:
+    def __init__(self, parent):
+        self.parent = parent
+
+    def change_state(self, combo, s):
+        combo.configure(state=s)
+
+    def add_combo(self, s, sym_values):
+        symptom = StringVar()
+        newCombo = ttk.Combobox(self.parent, textvariable=symptom, state=s)
+        newCombo['values'] = sym_values
+        newCombo.pack(fill=BOTH, padx=20, pady=10, ipadx=5, ipady=5, side=TOP)
+        # newCombo.grid(column=c, row=r)
+        # newCombo.current(0)
+        return newCombo
+
 class ParametersWin(Frame):
 
     def __init__(self, parent):
         Frame.__init__(self, parent)
         self.init_window()
-        label = Label(self, text="This is the start page")
+        label = Label(self, text="Edit rules")
         label.pack(side="top", fill="x", pady=10)
 
     def init_window(self):
         # changing the title of our master widget
-        self.master.title("Parameters")
+        self.master.title("Edit rules")
         self.pack(fill=BOTH, expand=1)
 
         tabControl = ttk.Notebook(self) # create Tab Control
@@ -205,46 +250,7 @@ class ParametersWin(Frame):
         tabControl.pack(expand=1, fill="both")  # Pack to make visible
 
 
-class SimulationPage(Frame):
 
-    def __init__(self, parent):
-        Frame.__init__(self, parent)
-        label = Label(self, text="This is page 1")
-
-#class AnalysisPage(Frame):
-
-#    def __init__(self, parent, controller):
-#        Frame.__init__(self, parent)
-#        self.controller = controller
-#        label = Label(self, text="This is page 1", font=controller.title_font)
-#        label.pack(side="top", fill="x", pady=10)
-#        button = Button(self, text="Go to the start page",
-#                           command=lambda: controller.show_frame("StartPage"))
-#        button.pack()
-
-
-#class SRTPage(Frame):
-
-#    def __init__(self, parent, controller):
-#        Frame.__init__(self, parent)
-#        self.controller = controller
-#        label = Label(self, text="This is page 2", font=controller.title_font)
-#        label.pack(side="top", fill="x", pady=10)
-#        button = Button(self, text="Go to the start page",
-#                           command=lambda: controller.show_frame("StartPage"))
-#        button.pack()
-
-
-#class MIDPage(Frame):
-
-#    def __init__(self, parent, controller):
-#        Frame.__init__(self, parent)
-#        self.controller = controller
-#        label = Label(self, text="This is page 2", font=controller.title_font)
-#        label.pack(side="top", fill="x", pady=10)
-#        button = Button(self, text="Go to the start page",
-#                           command=lambda: controller.show_frame("StartPage"))
-#        button.pack()
 
 if __name__ == "__main__":
     # root window created. Here, that would be the only window, but
