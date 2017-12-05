@@ -90,26 +90,33 @@ class Window(Frame):
 
         self.symptom2 = StringVar()
         self.combo_two = ttk.Combobox(self.master, textvariable=self.symptom2, state='disabled')
-        self.combo_two.configure(values=values)
-        self.combo_two.pack(fill=BOTH, padx=20, pady=10, ipadx=5, ipady=5, side=TOP)
+        #self.combo_two.configure(values=values)
+        #self.combo_two.pack(fill=BOTH, padx=20, pady=10, ipadx=5, ipady=5, side=TOP)
+
+        self.del_button = Button(self.master, text='delete symptom', width=15, height=2,
+                          command=lambda: self.remove_simptom(self.combo_one.get()))
+        self.del_button.pack()
 
         # add separator between comboboxes and text area
         ttk.Separator(self.master, orient=HORIZONTAL).pack(pady=10, padx=5, ipadx=300, ipady=5)
 
         # text area where user will have preview of possible symptoms
-        self.text_area = Text(self.master, state='disabled').pack()
+        self.text_area = Text(self.master)
+        self.text_area.pack()
 
+        value = self.combo_one.get()
+        self.combo_one.bind('<<ComboboxSelected>>', self.add_simptom)
 
-        self.combo_one.bind('<<ComboboxSelected>>', self.add_simptom(self.combo_one.get()))
 
     def on_selection(self, event=None):
         # self.text_area.insert(END, "Just a text Widget\nin two lines\n")
         print self.combo_one.get()
         self.combo_two.configure(state='readonly')
 
-    def add_simptom(self, value):
+    def add_simptom(self, event=None):
         # get data so far in textbox
         data = self.text_area.get(0.0, END)
+        value = self.combo_one.get()
         split_data = data.split("\n")
         # print len(split_data)
         ifIn = 0
