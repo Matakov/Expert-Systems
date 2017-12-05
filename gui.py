@@ -101,7 +101,7 @@ class Window(Frame):
         ttk.Separator(self.master, orient=HORIZONTAL).pack(pady=10, padx=5, ipadx=300, ipady=5)
 
         # text area where user will have preview of possible symptoms
-        self.text_area = Text(self.master)
+        self.text_area = Text(self.master, state='disable')
         self.text_area.pack()
 
         value = self.combo_one.get()
@@ -115,6 +115,7 @@ class Window(Frame):
 
     def add_simptom(self, event=None):
         # get data so far in textbox
+        self.text_area.configure(state='normal')
         data = self.text_area.get(0.0, END)
         value = self.combo_one.get()
         split_data = data.split("\n")
@@ -128,10 +129,12 @@ class Window(Frame):
         # if value is not in, add it
         if not ifIn:
             self.text_area.insert(END, value + "\n")
+            self.text_area.configure(state='disable')
         pass
 
     def remove_simptom(self, value):
         # get data so far in textbox
+        self.text_area.configure(state='normal')
         data = self.text_area.get(0.0, END)
         split_data = data.split()
         self.text_area.delete(0.0, END)
@@ -142,6 +145,7 @@ class Window(Frame):
                 if (inputs != "\n"):
                     in2 = " ".join(inputs.split())
                     self.text_area.insert(END, in2.strip() + "\n")
+        self.text_area.configure(state='disable')
 
     '''
             # Label(self.master, text="Select your symptom:").grid(column=1, row=0)
