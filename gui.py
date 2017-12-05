@@ -9,8 +9,8 @@ if sys.version_info[0] < 3:
     import ttk
     import tkMessageBox as mBox
     # import clips6
-    import clips
-    clips.Reset()
+    # import clips
+    # clips.Reset()
 
 else:
     # python 3
@@ -61,7 +61,7 @@ class Window(Frame):
         menu.add_cascade(label="File", menu=file_menu)
 
         # create the rule object
-        rule_menu = Menu(menu, tearoff=0)
+        rule_menu = Menu(menu, tearoff=1)
 
         # adds a command to the menu option, calling it exit, and the
         # command it runs on event is client_exit
@@ -71,7 +71,7 @@ class Window(Frame):
         rule_menu.add_command(label="Add new...", command=self.ruleWin)
 
         # Add another Menu to the Menu Bar and an item
-        help_menu = Menu(menu, tearoff=0)
+        help_menu = Menu(menu, tearoff=1)
         menu.add_cascade(label="Help", menu=help_menu)
         #help_menu.add_command(label="Presentation", command=self.openPDF("filename.pdf"))
         #help_menu.add_command(label="Documentation", command=self.openPDF("filename.pdf"))
@@ -79,24 +79,37 @@ class Window(Frame):
         help_menu.add_command(label="About", command=self.msgBox)
 
         Label(self.master, text="Select symptoms:").pack(side=TOP)#.grid(column=0, row=0)
-        combo_master = Combos(self.master)
-        combo_one = combo_master.add_combo('readonly', (1, 2, 3, 4, 5))
-        combo_two = combo_master.add_combo('readonly', (6, 7, 8, 9, 10))
-        # combo_two.configure(state='disabled')
+
+        #combo_master = Combos(self.master)
+        self.symptom = StringVar()
+        self.combo_one = ttk.Combobox(self.master, textvariable=self.symptom, state='readonly')
+
+        values = (1, 2, 3, 4, 5)
+        self.combo_one.configure(values=values)
+        self.combo_one.pack(fill=BOTH, padx=20, pady=10, ipadx=5, ipady=5, side=TOP)
+
+        self.symptom2 = StringVar()
+        self.combo_two = ttk.Combobox(self.master, textvariable=self.symptom2, state='disabled')
+        self.combo_two.configure(values=values)
+        self.combo_two.pack(fill=BOTH, padx=20, pady=10, ipadx=5, ipady=5, side=TOP)
 
         # add separator between comboboxes and text area
         ttk.Separator(self.master, orient=HORIZONTAL).pack(pady=10, padx=5, ipadx=300, ipady=5)
 
         # text area where user will have preview of possible symptoms
-        textarea = Text(self.master, state='disabled').pack()
-        #textarea.grid(row=6, column=0)
+        self.text_area = Text(self.master, state='disabled').pack()
 
 
-        #combo_one.bind('<<ComboboxSelected>>', self.add_simptom(combo_one.get(), textarea))
+        self.combo_one.bind('<<ComboboxSelected>>', self.add_simptom(self.combo_one.get()))
 
-    def add_simptom(self, value, text_area):
+    def on_selection(self, event=None):
+        # self.text_area.insert(END, "Just a text Widget\nin two lines\n")
+        print self.combo_one.get()
+        self.combo_two.configure(state='readonly')
+
+    def add_simptom(self, value):
         # get data so far in textbox
-        data = text_area.get(0.0, END)
+        data = self.text_area.get(0.0, END)
         split_data = data.split("\n")
         # print len(split_data)
         ifIn = 0
@@ -105,22 +118,23 @@ class Window(Frame):
             if (inputs == value):
                 ifIn = 1
         # if value is not in, add it
+        # if value is not in, add it
         if not ifIn:
             self.text_area.insert(END, value + "\n")
         pass
 
     def remove_simptom(self, value):
         # get data so far in textbox
-        data = self.TextArea.get(0.0, END)
+        data = self.text_area.get(0.0, END)
         split_data = data.split()
-        self.TextArea.delete(0.0, END)
+        self.text_area.delete(0.0, END)
         # look if there is already that value inside textbox and if it is, do not add it (remove it)
         print(len(split_data))
         for inputs in split_data:
             if (inputs != value):
                 if (inputs != "\n"):
                     in2 = " ".join(inputs.split())
-                    self.TextArea.insert(END, in2.strip() + "\n")
+                    self.text_area.insert(END, in2.strip() + "\n")
 
     '''
             # Label(self.master, text="Select your symptom:").grid(column=1, row=0)
@@ -145,9 +159,6 @@ class Window(Frame):
             # newCombo.current(0)
             return newCombo
     '''
-
-
-
 
     def ruleWin(self):
         gringo = Tk()
@@ -212,22 +223,34 @@ class Window(Frame):
             subprocess.call([opener, filename])
 
 
+class Combo:
+    def __init__(self, parent):
+        self.parent = parent;
+        self.values = StringVar();
+        self.make_combobox(self.parent, self.values)
+        self.add_symptoms(self.values)
+
+    def make_combobox(self, parent, values):
+        newCombo = ttk.Combobox(self.parent, textvariable=self.values)
+        newCombo.pack(fill=BOTH, padx=20, pady=10, ipadx=5, ipady=5, side=TOP)
+        return newCombo
+
+    def add_symptoms(self, symptoms):
+        newCombo = ttk.Combobox(self.parent, textvariable=self.values)
+        newCombo['values'] = symptoms
+
 
 class Combos:
     def __init__(self, parent):
         self.parent = parent
 
-    def change_state(self, combo, s):
-        combo.configure(state=s)
-
-    def add_combo(self, s, sym_values):
-        symptom = StringVar()
-        newCombo = ttk.Combobox(self.parent, textvariable=symptom, state=s)
-        newCombo['values'] = sym_values
+    def add_combo(self, symptom):
+        newCombo = ttk.Combobox(self.parent, textvariable=symptom)
         newCombo.pack(fill=BOTH, padx=20, pady=10, ipadx=5, ipady=5, side=TOP)
         # newCombo.grid(column=c, row=r)
         # newCombo.current(0)
         return newCombo
+
 
 class ParametersWin(Frame):
 
@@ -251,28 +274,27 @@ class ParametersWin(Frame):
         #self.tabControl.add(self.tabTwo, text=' Monetary Incentive Delay ')  # Add the tab
         self.tabControl.pack(side="top",expand=1, fill="both")  # Pack to make visible
 
-	#entry to add malfunction	
-	self.e = Entry(self.tabScan)
-	self.e.pack(side="top",padx=50, pady=50)
+        # entry to add malfunction
+        self.e = Entry(self.tabScan)
+        self.e.pack(side="top", padx=50, pady=50)
 
-	self.e.delete(0, END)
-	self.e.insert(0, "add malfunction")
+        self.e.delete(0, END)
+        self.e.insert(0, "add malfunction")
 
-	self.Button = Button(self.tabScan, text='add', width=15, height=5, command=lambda:self.add_rule(self.e.get(),self.Area.get(0.0, END)))
-	self.Button.pack(side="bottom",padx=0, pady=0)
+        self.but = Button(self.tabScan, text='add', width=15, height=5,
+                             command=lambda: self.add_rule(self.e.get(), self.Area.get(0.0, END)))
+        self.but.pack(side="bottom", padx=0, pady=0)
 
-	self.Area = Text(self.tabScan)
-	self.Area.pack(side="left",padx=50, pady=50)
-
-    def add_rule(self,rule, things):
-	print rule, things
-	self.Area.delete(0.0,END)
-	self.e.delete(0,END)
-	self.e.insert(0, "add malfunction")
-	pass
+        self.Area = Text(self.tabScan)
+        self.Area.pack(side="left", padx=50, pady=50)
 
 
-
+    def add_rule(self, rule, things):
+        print rule, things
+        self.Area.delete(0.0, END)
+        self.e.delete(0, END)
+        self.e.insert(0, "add malfunction")
+        pass
 
 if __name__ == "__main__":
     # root window created. Here, that would be the only window, but
