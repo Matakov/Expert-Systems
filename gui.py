@@ -150,6 +150,7 @@ class Window(Frame):
 	clips.Load('rulez.clp')
 
     def run(self):
+	sys.stdout = open("logfile", "w")
 	self.text_area.configure(state='normal')
         data = self.text_area.get(0.0, END)
         split_data = data.split("\n")
@@ -172,16 +173,21 @@ class Window(Frame):
 				split_data_edited.append(line)
 		
 	clips.Run()
-	"""
-		OVO TREBA NAPRAVITI DRUGACIJE!
-		TREBA SE ZATVORITI STDOUT I PREUSMIJERITI IZLAZ U NEKU PRIVREMENU LOG DATOTEKU SE TO OČITAVATI
-	"""
+	
 	lines = []
 	answer = []
+	clips.PrintFacts()
+	"""
 	with CaptureOutput() as capturer:
 		clips.PrintFacts()
 		lines = capturer.get_lines()
+	"""	
 	#print lines
+	sys.stdout = open("/dev/stdout", "w")
+	f = open("logfile", 'r')
+	for line in f:
+		lines.append(line)
+		
 	for line in lines[1:-1]:
 		#print line
 		line = line.encode("utf-8")
