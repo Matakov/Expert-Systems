@@ -1,4 +1,8 @@
 import clips
+import subprocess
+import sys
+from capturer import CaptureOutput
+from cStringIO import StringIO
 clips.Reset()
 
 """
@@ -28,9 +32,10 @@ clips.RegisterPythonFunction(addf)
 #clips.PrintFacts()
 #t = clips.StdoutStream.Read()
 #print t
+#ri=clips.BuildRule("user-rule", "(test (eq (python-call py_getvar user) TRUE))", '(assert (user-present))', "the user rule")
 
-clips.Build("""
-(defrule Enginefailure1
+r0=clips.Build("""
+(defrule Enginefailure1 "Engine fails to start, Spark is good"
   (Engine fails to start)(Spark is good)
   =>
   (assert (Obstructed fuel line))
@@ -39,8 +44,8 @@ clips.Build("""
   (assert (Low compression)))
 """)
 
-clips.Build("""
-(defrule Enginefailure2
+r1=clips.Build("""
+(defrule Enginefailure2 "Engine fails to start, Spark is not good"
   (Engine fails to start)(Spark is not good)
   =>
   (assert (Loose electrical connections))
@@ -55,7 +60,7 @@ clips.Build("""
 #clips.Assert("(Engine fails to start)")
 #clips.Assert("(Spark is good)")
 
-clips.Build("""
+r2=clips.Build("""
 (defrule EngineStart
   (Engine is difficult to start)
   =>
@@ -70,7 +75,7 @@ clips.Build("""
   (assert (Engine and transmission oil too beavy)))
 """)
 
-clips.Build("""
+r3=clips.Build("""
 (defrule EngineKrank
   (Engine Will Not Crank)
   =>
@@ -82,7 +87,7 @@ clips.Build("""
   (assert (Broken connecting rod)))
 """)
 
-clips.Build("""
+r4=clips.Build("""
 (defrule EngineIdle
   (Engine Will Not Idle)
   =>
@@ -95,7 +100,7 @@ clips.Build("""
   (assert (Valve clearance incorrect)))
 """)
 
-clips.Build("""
+r5=clips.Build("""
 (defrule EngineMisses
   (Engine Misses at High Speed)
   =>
@@ -108,7 +113,7 @@ clips.Build("""
   (assert (Clogged carburetor jets)))
 """)
 
-clips.Build("""
+r6=clips.Build("""
 (defrule EngineOverheating
   (Engine Overheating)
   =>
@@ -122,7 +127,7 @@ clips.Build("""
   (assert (Heavy engine carbon deposits)))
 """)
 
-clips.Build("""
+r7=clips.Build("""
 (defrule EngineOverheatingCooling
   (Engine Overheating Water-cooling problems)
   =>
@@ -135,7 +140,7 @@ clips.Build("""
   (assert (Damaged fan blade-s)))
 """)
 
-clips.Build("""
+r8=clips.Build("""
 (defrule EngineExhaustSmoke
   (Excessive  Exhaust   Smoke  and  Engine  Runs Roughly)
   =>
@@ -154,7 +159,7 @@ clips.Build("""
   (assert (Intake manifold or air cleaner  air leak)))
 """)
 
-clips.Build("""
+r9=clips.Build("""
 (defrule EnginePowerLoss
   (Engine Loses Power at Normal Riding Speed)
   =>
@@ -166,7 +171,7 @@ clips.Build("""
   (assert (Dragging brakes-s)))
 """)
 
-clips.Build("""
+r10=clips.Build("""
 (defrule EngineLacksAcceleration
   (Engine Lacks Acceleration)
   =>
@@ -176,7 +181,7 @@ clips.Build("""
   (assert (Dragging brakes-s)))
 """)
 
-clips.Build("""
+r11=clips.Build("""
 (defrule EngineOilConsumption
   (Engine Oil  Consumption High)
   =>
@@ -184,7 +189,7 @@ clips.Build("""
   (assert (Worn or damaged piston rings)))
 """)
 
-clips.Build("""
+r12=clips.Build("""
 (defrule EngineSmokes
   (Engine Smokes Excessively)
   =>
@@ -192,7 +197,7 @@ clips.Build("""
   (assert (Worn or damaged piston rings)))
 """)
 
-clips.Build("""
+r13=clips.Build("""
 (defrule EngineOilLeaks
   (Excessive Engine Oil Leaks)
   =>
@@ -201,7 +206,7 @@ clips.Build("""
   (assert (Damaged gasket sealing surfaces)))
 """)
 
-clips.Build("""
+r14=clips.Build("""
 (defrule EngineOilLeaks
   (Excessive Engine Oil Leaks)
   =>
@@ -210,7 +215,7 @@ clips.Build("""
   (assert (Damaged gasket sealing surfaces)))
 """)
 
-clips.Build("""
+r15=clips.Build("""
 (defrule ClutchSlipping
   (Clutch slipping)
   =>
@@ -220,7 +225,7 @@ clips.Build("""
   (assert (Clutch release mechanism damage)))
 """)
 
-clips.Build("""
+r16=clips.Build("""
 (defrule ClutchDragging
   (Clutch dragging)
   =>
@@ -231,7 +236,7 @@ clips.Build("""
   (assert (Clutch housing damage)))
 """)
 
-clips.Build("""
+r17=clips.Build("""
 (defrule ClutchNoise
   (excessive clutch noise)
   =>
@@ -239,7 +244,36 @@ clips.Build("""
   (assert (Worn or warped clutch plates)))
 """)
 
-clips.Run()
-clips.PrintFacts()
+#clips.Assert("(Engine fails to start)")
+#clips.Assert("(Spark is good)")
+#clips.Run()
+
+#clips.FactList()
+#print clips.FactList()
+#with CaptureOutput() as capturer:
+#	clips.PrintFacts()
+#	print  capturer.get_lines()
+#print h
+#clips.PrintRules()
+#clips.Matches()
 clips.Save("rulez.clp")
 
+#clips.Ppdefrule()
+#subprocess.call(["ls", "-l"])
+#print subprocess.check_output(['ls','-l'])
+
+#clips.FindRule("""ClutchNoise""")
+#clips.SendCommand("""(rules)""")
+#clips.StdinStream.Write("""(rules)""")
+#clips.Build("""rules""")
+#t = clips.RuleList()
+#clips.Run()
+#clips.StdoutStream.Read()
+#clips.Call("""ppdefrule""","""EngineStart""")
+#print t
+
+#clips.SendCommand("(assert (Engine fails to start))")
+#clips.SendCommand("(assert (Spark is good))")
+#clips.SendCommand("(ppdefrule "+"EngineStart"+")")
+#clips.Run()
+#clips.PrintFacts()

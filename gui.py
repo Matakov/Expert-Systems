@@ -1,6 +1,8 @@
 import sys
 import os
 import subprocess
+from capturer import CaptureOutput
+from cStringIO import StringIO
 
 if sys.version_info[0] < 3:
     # python 2
@@ -9,8 +11,8 @@ if sys.version_info[0] < 3:
     import ttk
     import tkMessageBox as mBox
     # import clips6
-    # import clips
-    # clips.Reset()
+    import clips
+    clips.Reset()
 
 else:
     # python 3
@@ -19,9 +21,41 @@ else:
     from tkinter import ttk
     from tkinter import messagebox as mBox
 
+def GetValues(filename='rulez.clp'):
+	f = open(filename, 'r')
+
+	flagLHS = False
+	flagRHS = False
+
+	LHS = []
+	RHS = []
+	for line in f:
+		#if line not in ['\n', '\r\n']:
+		#	print line[0]+line[1]
+		if "=>" in line:
+			flagLHS = False
+		if flagLHS:
+			#print line
+			LHS.append(line.strip()[1:-1])	
+		if "defrule" in line:
+			flagLHS = True
+
+		if "defrule" in line:
+			flagRHS = False
+		if flagRHS:
+			#print line
+			line = line.strip()
+			index = line.find(")))")
+			if index==-1:
+				index = line.find("))")
+			if line != "":
+				RHS.append(line[9:index])	
+		if "=>" in line:
+			flagRHS = True
+		#re.search(r'\s[\s]*\s', x, re.S)
+	return LHS,RHS
 
 # class Window, inheriting from the Frame class.
-
 class Window(Frame):
     # define settings upon initialization.
     def __init__(self, master=None):
@@ -84,8 +118,12 @@ class Window(Frame):
         self.symptom = StringVar()
         self.combo_one = ttk.Combobox(self.master, textvariable=self.symptom, state='readonly')
 
-        values = (1, 2, 3, 4, 5)
-        self.combo_one.configure(values=values)
+	
+	LHS,RHS=GetValues('rulez.clp')
+	self.filename='rulez.clp'
+
+        self.values = list(set(LHS))#(1, 2, 3, 4, 5)
+        self.combo_one.configure(values=self.values)
         self.combo_one.pack(fill=BOTH, padx=20, pady=10, ipadx=5, ipady=5, side=TOP)
 
         self.symptom2 = StringVar()
@@ -96,6 +134,9 @@ class Window(Frame):
         self.del_button = Button(self.master, text='delete symptom', width=15, height=2,
                           command=lambda: self.remove_simptom(self.combo_one.get()))
         self.del_button.pack()
+	self.run_button = Button(self.master, text='run', width=15, height=2,
+                          command=lambda: self.run())
+        self.run_button.pack()
 
         # add separator between comboboxes and text area
         ttk.Separator(self.master, orient=HORIZONTAL).pack(pady=10, padx=5, ipadx=300, ipady=5)
@@ -106,7 +147,56 @@ class Window(Frame):
 
         value = self.combo_one.get()
         self.combo_one.bind('<<ComboboxSelected>>', self.add_simptom)
+	clips.Load('rulez.clp')
 
+    def run(self):
+	self.text_area.configure(state='normal')
+        data = self.text_area.get(0.0, END)
+        split_data = data.split("\n")
+        self.text_area.delete(0.0, END)
+        # look if there is already that value inside textbox and if it is, do not add it (remove it)
+        #print(len(split_data))
+        for inputs in split_data:
+	    inputs = inputs.encode("utf-8")
+	    if inputs != "":
+		#print inputs
+		if (inputs != "\n"):
+		     clips.Assert("("+inputs+")")
+		     #in2 = " ".join(inputs.split())
+		     #self.text_area.insert(END, inputs.strip() + "\n")
+	split_data_edited = []
+	for line in split_data:
+		line = line.encode("utf-8")
+		if line != "":
+			if (line != "\n"):
+				split_data_edited.append(line)
+		
+	clips.Run()
+	"""
+		OVO TREBA NAPRAVITI DRUGACIJE!
+		TREBA SE ZATVORITI STDOUT I PREUSMIJERITI IZLAZ U NEKU PRIVREMENU LOG DATOTEKU SE TO OČITAVATI
+	"""
+	lines = []
+	answer = []
+	with CaptureOutput() as capturer:
+		clips.PrintFacts()
+		lines = capturer.get_lines()
+	#print lines
+	for line in lines[1:-1]:
+		#print line
+		line = line.encode("utf-8")
+		index = line.find(")")
+		line = line[9:index]
+		#print line
+		if line not in split_data_edited:
+			answer.append(line)
+	for line in answer:
+		self.text_area.insert(END, line.strip() + "\n")
+	clips.Clear()
+	LHS,RHS=GetValues(self.filename)
+	self.values = list(set(LHS))#(1, 2, 3, 4, 5)
+        self.combo_one.configure(values=self.values)
+	#clips.Assert("(Engine fails to start)")
 
     def on_selection(self, event=None):
         # self.text_area.insert(END, "Just a text Widget\nin two lines\n")
@@ -136,15 +226,19 @@ class Window(Frame):
         # get data so far in textbox
         self.text_area.configure(state='normal')
         data = self.text_area.get(0.0, END)
-        split_data = data.split()
+        split_data = data.split("\n")
+	#print split_data
         self.text_area.delete(0.0, END)
         # look if there is already that value inside textbox and if it is, do not add it (remove it)
-        print(len(split_data))
+        #print(len(split_data))
         for inputs in split_data:
+	    inputs = inputs.encode("utf-8")
             if (inputs != value):
-                if (inputs != "\n"):
-                    in2 = " ".join(inputs.split())
-                    self.text_area.insert(END, in2.strip() + "\n")
+		if inputs != "":
+			#print inputs
+		        if (inputs != "\n"):
+		            #in2 = " ".join(inputs.split())
+		            self.text_area.insert(END, inputs.strip() + "\n")
         self.text_area.configure(state='disable')
 
     '''
@@ -193,10 +287,14 @@ class Window(Frame):
 
     def client_open(self):
         mask = \
-            [("ASCII files", "*.txt"),
-             ("HTML files", "*.htm"),
+            [("CLISP files", "*.clp"),
              ("All files", "*.*")]
         filename = filedialog.askopenfilename(filetypes=mask, title="Select file")
+	clips.Load(filename)
+	self.filename=filename
+	LHS,RHS=GetValues(filename)
+	self.values = list(set(LHS))#(1, 2, 3, 4, 5)
+        self.combo_one.configure(values=self.values)
 
     def client_save(self):
         file_exists = filedialog.asksaveasfile(mode='w', defaultextension=".txt")
@@ -211,6 +309,8 @@ class Window(Frame):
                                      filetypes=(("ASCII files", "*.txt"), ("all files", "*.*")))
 
     def client_exit(self):
+	clips.Run()
+	clips.Save("rulez.clp")
         exit()
 
     def client_open_directory(self):
@@ -287,24 +387,45 @@ class ParametersWin(Frame):
 
         # entry to add malfunction
         self.e = Entry(self.tabScan)
-        self.e.pack(side="top", padx=50, pady=50)
+        self.e.pack()#side="top", padx=50, pady=50)
+	self.LHS = Text(self.tabScan,height=12, width=50)
+        self.LHS.pack()#x=0,y=0, height=200, width=200)
+	self.e.delete(0, END)
+        self.e.insert(0, "add-rule-name")
 
-        self.e.delete(0, END)
-        self.e.insert(0, "add malfunction")
+        self.RHS = Text(self.tabScan,height=12, width=50)
+        self.RHS.pack()#x=101,y=101, height=200, width=200)
 
-        self.but = Button(self.tabScan, text='add', width=15, height=5,
-                             command=lambda: self.add_rule(self.e.get(), self.Area.get(0.0, END)))
+	self.but = Button(self.tabScan, text='add', width=15, height=5,
+                             command=lambda: self.add_rule(self.e.get(),self.LHS.get(0.0, END), self.RHS.get(0.0, END)))
         self.but.pack(side="bottom", padx=0, pady=0)
+	
+	self.RHS.insert(0.0, "add possible malfunction")
+        self.LHS.insert(0.0, "add sypmtom")
 
-        self.Area = Text(self.tabScan)
-        self.Area.pack(side="left", padx=50, pady=50)
-
-
-    def add_rule(self, rule, things):
-        print rule, things
-        self.Area.delete(0.0, END)
-        self.e.delete(0, END)
-        self.e.insert(0, "add malfunction")
+    def add_rule(self,name, rule, things):
+        #print name,rule, things
+        #self.LHS.delete(0.0, END)
+        #self.RHS.delete(0.0, END)
+	#self.RHS.insert(0.0, "add possible malfunction")
+        #self.LHS.insert(0.0, "add sypmtom")
+	#dataLHS = self.LHS.get(0.0, END)
+        split_rule = rule.splitlines()
+	#data = self.text_area.get(0.0, END)
+        split_things = things.splitlines()
+	print name,split_rule,split_things
+	stringRHSL = '(assert ('
+	stringRHSR = '))'
+	stringLHSL = '('
+	stringLHSR = ')'
+	RHSString = ''
+	LHSString = ''
+	for i in range(len(split_rule)):
+		LHSString=LHSString+stringLHSL+split_rule[i].encode("utf-8")+stringLHSR
+	for i in range(len(split_things)):
+		RHSString=RHSString+stringRHSL+split_things[i].encode("utf-8")+stringRHSR
+	#clips.BuildRule("user-rule", "(test (eq (python-call py_getvar",RHSString, "the user rule")
+	clips.BuildRule(name, LHSString,RHSString, "the user rule")
         pass
 
 if __name__ == "__main__":
