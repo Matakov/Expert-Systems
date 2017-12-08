@@ -118,7 +118,6 @@ class Window(Frame):
         self.symptom = StringVar()
         self.combo_one = ttk.Combobox(self.master, textvariable=self.symptom, state='readonly')
 
-	
 	LHS,RHS=GetValues('rulez.clp')
 	self.filename='rulez.clp'
 
@@ -198,7 +197,7 @@ class Window(Frame):
 			answer.append(line)
 	for line in answer:
 		self.text_area.insert(END, line.strip() + "\n")
-	clips.Clear()
+	clips.Reset()
 	LHS,RHS=GetValues(self.filename)
 	self.values = list(set(LHS))#(1, 2, 3, 4, 5)
         self.combo_one.configure(values=self.values)
