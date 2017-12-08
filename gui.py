@@ -53,6 +53,7 @@ def GetValues(filename='rulez.clp'):
 		if "=>" in line:
 			flagRHS = True
 		#re.search(r'\s[\s]*\s', x, re.S)
+	f.close()
 	return LHS,RHS
 
 # class Window, inheriting from the Frame class.
@@ -120,13 +121,13 @@ class Window(Frame):
 
 	LHS,RHS=GetValues('rulez.clp')
 	self.filename='rulez.clp'
-
-        self.values = list(set(LHS))#(1, 2, 3, 4, 5)
+	self.LHS=LHS
+        self.values = list(set(self.LHS))#(1, 2, 3, 4, 5)
         self.combo_one.configure(values=self.values)
         self.combo_one.pack(fill=BOTH, padx=20, pady=10, ipadx=5, ipady=5, side=TOP)
 
-        self.symptom2 = StringVar()
-        self.combo_two = ttk.Combobox(self.master, textvariable=self.symptom2, state='disabled')
+        #self.symptom2 = StringVar()
+        #self.combo_two = ttk.Combobox(self.master, textvariable=self.symptom2, state='disabled')
         #self.combo_two.configure(values=values)
         #self.combo_two.pack(fill=BOTH, padx=20, pady=10, ipadx=5, ipady=5, side=TOP)
 
@@ -275,7 +276,7 @@ class Window(Frame):
         gringo.geometry("500x500")
 
         # creation of an instance
-        app = ParametersWin(gringo)
+        app = ParametersWin(gringo,self)
 
         # mainloop
         gringo.mainloop()
@@ -370,11 +371,14 @@ class Combos:
 
 class ParametersWin(Frame):
 
-    def __init__(self, parent):
+    def __init__(self, parent, ancestor):
         Frame.__init__(self, parent)
-        self.init_window()
+        self.ancestor = ancestor
+	self.values = ancestor.values
+	#print ancestor.values
         label = Label(self, text="Edit rules")
-        label.pack(side="top", fill="x", pady=10)
+	self.init_window()        
+	label.pack(side="top", fill="x", pady=10)
 
     def init_window(self):
         # changing the title of our master widget
@@ -382,31 +386,57 @@ class ParametersWin(Frame):
         self.pack(fill=BOTH, expand=1)
 
         self.tabControl = ttk.Notebook(self) # create Tab Control
-        self.tabScan = Frame(self.tabControl)  # Create a tab
-        self.tabControl.add(self.tabScan, text=' Add rule ')  # Add the tab
-        #self.tabOne = Frame(self.tabControl) # Create a tab
-        #self.tabControl.add(self.tabOne, text=' Simple Reaction Time ')  # Add the tab
+        self.tabAdd = Frame(self.tabControl)  # Create a tab
+        self.tabControl.add(self.tabAdd, text=' Add rule ')  # Add the tab
+        self.tabEdit = Frame(self.tabControl) # Create a tab
+        self.tabControl.add(self.tabEdit, text=' Edit rule ')  # Add the tab
         #self.tabTwo = Frame(self.tabControl)  # Create a tab
         #self.tabControl.add(self.tabTwo, text=' Monetary Incentive Delay ')  # Add the tab
         self.tabControl.pack(side="top",expand=1, fill="both")  # Pack to make visible
 
+	################## TAB ADD
         # entry to add malfunction
-        self.e = Entry(self.tabScan)
+        self.e = Entry(self.tabAdd)
         self.e.pack()#side="top", padx=50, pady=50)
-	self.LHS = Text(self.tabScan,height=12, width=50)
+	self.LHS = Text(self.tabAdd,height=12, width=50)
         self.LHS.pack()#x=0,y=0, height=200, width=200)
 	self.e.delete(0, END)
         self.e.insert(0, "add-rule-name")
 
-        self.RHS = Text(self.tabScan,height=12, width=50)
+        self.RHS = Text(self.tabAdd,height=12, width=50)
         self.RHS.pack()#x=101,y=101, height=200, width=200)
 
-	self.but = Button(self.tabScan, text='add', width=15, height=5,
+	self.but = Button(self.tabAdd, text='add', width=15, height=5,
                              command=lambda: self.add_rule(self.e.get(),self.LHS.get(0.0, END), self.RHS.get(0.0, END)))
         self.but.pack(side="bottom", padx=0, pady=0)
 	
 	self.RHS.insert(0.0, "add possible malfunction")
         self.LHS.insert(0.0, "add sypmtom")
+	
+	################## TAB EDIT
+	#self.symptom = StringVar()
+        #self.combo_one = ttk.Combobox(self.tabEdit, textvariable=self.symptom, state='readonly')
+        #self.combo_one.configure(values=self.values)
+	#self.combo_one.pack()
+	#Load the whole file in a text
+	self.file = Text(self.tabEdit,height=28, width=65)
+        self.file.pack()#x=101,y=101, height=200, width=200)
+	self.fileButton = Button(self.tabEdit,text="Edit",command= lambda: self.editFile(self.file.get(0.0, END)))
+	self.fileButton.pack()
+	f = open(self.ancestor.filename, 'r')
+	for line in f:
+		#print line
+		self.file.insert(END,line)
+	f.close()
+	
+    def editFile(self,textToSave):
+	f = open(self.ancestor.filename, 'w')
+	for line in textToSave:
+		f.write(line)
+	f.close()
+	clips.Clear()
+	clips.Load(self.ancestor.filename)
+
 
     def add_rule(self,name, rule, things):
         #print name,rule, things
