@@ -4,7 +4,7 @@ import sys
 from capturer import CaptureOutput
 from cStringIO import StringIO
 clips.Reset()
-
+#sys.stdout = open("logfile", "w")
 """
 user = True
 
@@ -244,6 +244,323 @@ r17=clips.Build("""
   (assert (Worn or warped clutch plates)))
 """)
 
+r18=clips.Build("""
+(defrule GearNoise
+  (excessive gear noise)
+  =>
+  (assert (Worn bearings))
+  (assert (Worn or damaged gears))
+  (assert (Excessive gear backlash)))
+""")
+
+r19=clips.Build("""
+(defrule DifficultShifting
+  (Difficult shifting)
+  =>
+  (assert (Damaged gears))
+  (assert (Damaged shift forks))
+  (assert (Damaged shift drum))
+  (assert (Damaged shift lever assembly))
+  (assert (Incorrect clutch disengagement))
+  (assert (Incorrect main shaft and countershaft engagement)))
+""")
+
+r20=clips.Build("""
+(defrule GearsPopOut
+  (Gears pop out of mesh)
+  =>
+  (assert (Worn gear or transmission shaft splines))
+  (assert (Shift forks worn or bent))
+  (assert (Worn dog holes In gears))
+  (assert (Insufficient shift lever sprIng tensIon))
+  (assert (Damaged shift lever linkage)))
+""")
+
+r21=clips.Build("""
+(defrule IncorrectShiftOperation
+  (Incorrect shift lever operation)
+  =>
+  (assert (Bent shift lever))
+  (assert (Bent or damaged shift lever shaft))
+  (assert (Damaged shift lever linkage or gears)))
+""")
+
+r22=clips.Build("""
+(defrule StarterNotWork
+  (Starter does not work)
+  =>
+  (assert (Low battery))
+  (assert (Worn brushes))
+  (assert (Defective relay))
+  (assert (Defective awltch))
+  (assert (Defective wiring or connection))
+  (assert (Intemal short circuit)))
+""")
+
+r23=clips.Build("""
+(defrule StarterWeak
+  (Starter action is weak)
+  =>
+  (assert (Low battery))
+  (assert (Pitted relay contacts Worn))
+  (assert (brushes Defective))
+  (assert (connection short circuit in commutator)))
+""")
+
+r24=clips.Build("""
+(defrule StarterRunsContinuously
+  (Starter runs continuously)
+  =>
+  (assert (Stuck relay)))
+""")
+
+r25=clips.Build("""
+(defrule StarterNoEngine
+  (Starter turnes but not engine)
+  =>
+  (assert (Defective starter clutch)))
+""")
+
+r26=clips.Build("""
+(defrule ExcessiveVibration
+  (Excessive Vibration)
+  =>
+  (assert (Broken frame))
+  (assert (Severely worn primary chain))
+  (assert (Worn drive chain))
+  (assert (Primary chain  links  tight  due to improper lubrication))
+  (assert (Improperly balanced wheels))
+  (assert (Defective or damaged wheels))
+  (assert (Defective or damaged tires))
+  (assert (Internal engine wear or damage)))
+""")
+
+r27=clips.Build("""
+(defrule IrregularWobblySteering
+  (Irregular or Wobbly Steering)
+  =>
+  (assert (Loose wheel axle nuts))
+  (assert (Loose or worn steering head bearings))
+  (assert (Excessive wheel hub bearing play))
+  (assert (Damaged cast wheel))
+  (assert (Unbalanced wheel assembly))
+  (assert (Worn hub bearings))
+  (assert (Incorrect wheel alignment))
+  (assert (Bent or damaged  steering  stem or frame (at steering neck))
+  (assert (Tire incorrectly  seated on rim))
+  (assert (Excessive  front end loading  from non-standard equipment)))
+""")
+
+r27=clips.Build("""
+(defrule ExcessiveVibration
+  (Excessive Vibration)
+  =>
+  (assert (Broken frame))
+  (assert (Severely worn primary chain))
+  (assert (Worn drive chain))
+  (assert (Primary chain  links  tight  due to improper lubrication))
+  (assert (Improperly balanced wheels))
+  (assert (Defective or damaged wheels))
+  (assert (Defective or damaged tires))
+  (assert (Internal engine wear or damage)))
+""")
+
+r28=clips.Build("""
+(defrule StiffSteering
+  (Stiff Steering)
+  =>
+  (assert (Low front tire air pressure))
+  (assert (Bent  or  damaged  steering  stem  or frame at
+steering  neck))
+  (assert (Loose or worn steering head bearings))
+  (assert (Steering stem nut too tight)))
+""")
+
+r29=clips.Build("""
+(defrule StifforHeavyForkOperation
+  (Stiff or Heavy Fork Operation)
+  =>
+  (assert (Incorrect fork springs))
+  (assert (Incorrect fork oil viscosity))
+  (assert (Excessive amount of fork oil))
+  (assert (Bent fork rubes)))
+""")
+
+r30=clips.Build("""
+(defrule PoorShockAbsorber
+  (Poor Rear Shock Absorber Operation)
+  =>
+  (assert (Weak or worn spring))
+  (assert (Damper unit leaking))
+  (assert (Shock shaft worn or bent))
+  (assert (Incorrect rear shock spring))
+  (assert (Rear shock adjusted incorrectly))
+  (assert (Heavy rear  end  loading   from  non-standard equipment))
+  (assert (Incorrect loading)))
+""")
+
+r31=clips.Build("""
+(defrule StiffSteering
+  (Stiff Steering)
+  =>
+  (assert (Low front tire air pressure))
+  (assert (Bent  or  damaged  steering  stem  or frame at
+steering  neck))
+  (assert (Loose or worn steering head bearings))
+  (assert (Steering stem nut too tight)))
+""")
+
+r32=clips.Build("""
+(defrule DiscBrakeFluidLeakage
+  (Disc brake fluid leakage)
+  =>
+  (assert (Loose or damaged line fittings))
+  (assert (Worn caliper piston seels))
+  (assert (Scored caliper piston andlor bore))
+  (assert (Loose banjo bolts))
+  (assert (Damaged all line washers))
+  (assert (Leaking master cylinder diaphragm))
+  (assert (Leaking master cylinder secondary seal))
+  (assert (Cracked master cylinder housing))
+  (assert (Too high brake fluid level))
+  (assert (Loose master cylinder cover)))
+""")
+
+r33=clips.Build("""
+(defrule BrakeOverheatlng
+  (Brake overheatlng)
+  =>
+  (assert (Warped brake disc))
+  (assert (Incorrect brake fluid))
+  (assert (Caliper piston andlor brake pads hanging up))
+  (assert (Riding brakes during riding)))
+""")
+
+r34=clips.Build("""
+(defrule BrakeChatter
+  (Brake chatter)
+  =>
+  (assert (Warped brake disc))
+  (assert (Loose brake disc))
+  (assert (Incorrect caliper alignment))
+  (assert (Loose caliper mounting bolts))
+  (assert (Loose front axle nut and/or clamps))
+  (assert (Worn wheel bearings))
+  (assert (Damaged front hub))
+  (assert (Restricted brake hydraulic lineb))
+  (assert (Contaminated brake pads)))
+""")
+
+r35=clips.Build("""
+(defrule BrakeLocking
+  (Brake locking)
+  =>
+  (assert (Incorrect brake fluid))
+  (assert (Plugged passages In master cylinder))
+  (assert (Incorrect front brake adjustment))
+  (assert (Caliper piston andlor brake pads hanging up))
+  (assert (Warped brake disc)))
+""")
+
+r36=clips.Build("""
+(defrule InsufficientBrakes
+  (Insufficient brakes)
+  =>
+  (assert (Air In brake lines))
+  (assert (Worn brake pads))
+  (assert (Low brake fluid level))
+  (assert (Incorrect brake fluid))
+  (assert (Worn brake disc))
+  (assert (Worn caliper piston seals))
+  (assert (Glazed brake pads))
+  (assert (Leaking primary cup seal In master cylinder))
+  (assert (Contaminated brake pads and/or disc)))
+""")
+
+r37=clips.Build("""
+(defrule BrakeSqueal
+  (Brake squeal)
+  =>
+  (assert (Contaminated brake pads andlor disc))
+  (assert (Dust or dirt collected behind brake padsg))
+  (assert (Loose parts)))
+""")
+
+r38=clips.Build("""
+(defrule BrakesDoNotHold
+  (Brakes do not hold)
+  =>
+  (assert (Worn  brake linings))
+  (assert (Glazed brake linings))
+  (assert (Worn brake drum))
+  (assert (Glazed brake drum))
+  (assert (Incorrect brake adjustment))
+  (assert (Worn or damaged brake cable))
+  (assert (Worn or defective brake return springs)))
+""")
+
+r39=clips.Build("""
+(defrule BrakesGrab
+  (Brakes grab)
+  =>
+  (assert (Worn or damaged brake return springs))
+  (assert (Incorrect brake adjustment))
+  (assert (Brake drum out-ct-rcund))
+  (assert (Warped brake lining web))
+  (assert (Loose or worn wheel bearings)))
+""")
+
+r40=clips.Build("""
+(defrule BrakesSquealOrScrape
+  (Brakes  squeal  or  scrape)
+  =>
+  (assert (Worn brake linings))
+  (assert (Brake drum out-of·round))
+  (assert (Contaminated brake linings andlor drum))
+  (assert (Broken, loose or damaged brake component))
+  (assert (Loose or worn wheel bearing))
+  (assert (Loose brake drum·ta-wheel mounting bolta)))
+""")
+
+r41=clips.Build("""
+(defrule BrakesChatter
+  (Brakes chatter)
+  =>
+  (assert (Brake drum out-of·round))
+  (assert (Brake linings worn unevenly))
+  (assert (Warped brake lining web))
+  (assert (Incorrect brake adjustment))
+  (assert (Loose or worn wheel bearing))
+  (assert (Worn or damaged brake return springs)))
+""")
+
+r42=clips.Build("""
+(defrule RichMixture
+  (Brakes chatter)
+  (Rough Idle)
+  (Black exhauat smoke)
+  (Hard starting)
+  (Gas-fouled spark plugs)
+  (Black  deposits in exhaust pipe)
+  (Engine  performance worse as it worms up)
+  =>
+  (assert (Rich mixture)))
+""")
+
+r43=clips.Build("""
+(defrule LeanMixture
+  (Backfiring)
+  (Rough Idle)
+  (Overheating)
+  (Hesitation upon acceleration)
+  (Engine  speed  varies at fixed throttle)
+  (Loss of power)
+  (White color on spark plug insulator)
+  (Poor acceleration)
+  => 
+  (assert (Lean mixture)))
+""")
+
 #clips.Assert("(Engine fails to start)")
 #clips.Assert("(Spark is good)")
 #clips.Run()
@@ -272,8 +589,11 @@ clips.Save("rulez.clp")
 #clips.Call("""ppdefrule""","""EngineStart""")
 #print t
 
-#clips.SendCommand("(assert (Engine fails to start))")
-#clips.SendCommand("(assert (Spark is good))")
+clips.SendCommand("(assert (Engine fails to start))")
+clips.SendCommand("(assert (Spark is good))")
 #clips.SendCommand("(ppdefrule "+"EngineStart"+")")
 #clips.Run()
 #clips.PrintFacts()
+#sys.stdout = open("/dev/stdout", "w")
+
+clips.PrintRules()
