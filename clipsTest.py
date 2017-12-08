@@ -346,9 +346,9 @@ r27=clips.Build("""
   (assert (Unbalanced wheel assembly))
   (assert (Worn hub bearings))
   (assert (Incorrect wheel alignment))
-  (assert (Bent or damaged  steering  stem or frame (at steering neck))
-  (assert (Tire incorrectly  seated on rim))
-  (assert (Excessive  front end loading  from non-standard equipment)))
+  (assert (Bent or damaged  steering  stem or frame at steering neck))
+  (assert (Tire incorrectly seated on rim))
+  (assert (Excessive front end loading  from non-standard equipment)))
 """)
 
 r27=clips.Build("""
@@ -515,18 +515,18 @@ r40=clips.Build("""
   (Brakes  squeal  or  scrape)
   =>
   (assert (Worn brake linings))
-  (assert (Brake drum out-of·round))
+  (assert (Brake drum out-of-round))
   (assert (Contaminated brake linings andlor drum))
   (assert (Broken, loose or damaged brake component))
   (assert (Loose or worn wheel bearing))
-  (assert (Loose brake drum·ta-wheel mounting bolta)))
+  (assert (Loose brake drum-ta-wheel mounting bolta)))
 """)
 
 r41=clips.Build("""
 (defrule BrakesChatter
   (Brakes chatter)
   =>
-  (assert (Brake drum out-of·round))
+  (assert (Brake drum out-of-round))
   (assert (Brake linings worn unevenly))
   (assert (Warped brake lining web))
   (assert (Incorrect brake adjustment))
