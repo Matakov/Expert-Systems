@@ -108,13 +108,12 @@ class Window(Frame):
         # Add another Menu to the Menu Bar and an item
         help_menu = Menu(menu, tearoff=1)
         menu.add_cascade(label="Help", menu=help_menu)
-        # help_menu.add_command(label="Presentation", command=self.openPDF("prezentacija.pdf"))
-        # help_menu.add_command(label="Documentation", command=self.openPDF("dokumentacija.pdf"))
+        help_menu.add_command(label="Presentation", command=lambda: self.openPDF("test.pdf"))
+        help_menu.add_command(label="Documentation", command=lambda: self.openPDF("test.pdf"))
         help_menu.add_separator()
         help_menu.add_command(label="About", command=self.msgBox)
 
-        Label(self.master, text="Select symptoms:").pack(side=TOP)
-
+        Label(self.master, text="Select symptoms:", font=("Arial", 14), anchor="w").pack(side=TOP, fill=X, pady=10, padx=15)
         self.symptom = StringVar()
         self.combo_one = ttk.Combobox(self.master, textvariable=self.symptom, state='readonly')
 
@@ -129,16 +128,16 @@ class Window(Frame):
         self.del_button = Button(self.master, text='delete symptom', width=15, height=2,
                           command=lambda: self.remove_simptom(self.combo_one.get()))
         self.del_button.pack()
-        self.run_button = Button(self.master, text='run', width=15, height=2,
+        self.run_button = Button(self.master, text='RUN', fg="red", width=15, height=2,
                           command=lambda: self.run())
         self.run_button.pack()
 
         # add separator between comboboxes and text area
-        ttk.Separator(self.master, orient=HORIZONTAL).pack(pady=10, padx=5, ipadx=300, ipady=5)
+        ttk.Separator(self.master, orient=HORIZONTAL).pack(side=TOP, pady=10, padx=15, ipadx=300, ipady=5)
 
         # text area where user will have preview of possible symptoms
         self.text_area = Text(self.master, state='disable')
-        self.text_area.pack()
+        self.text_area.pack(side=BOTTOM)
 
         # value = self.combo_one.get()
         self.combo_one.bind('<<ComboboxSelected>>', self.add_simptom)
@@ -187,7 +186,6 @@ class Window(Frame):
                 answer.append(line)
         for line in answer:
             self.text_area.insert(END, line.strip() + "\n")
-        self.text_area.insert(END, "-----------------------------------" + "\n")
         clips.Reset()
 
         # LHS, RHS = GetValues(self.filename)
@@ -294,11 +292,11 @@ class Window(Frame):
         #frame.tkraise()
 
     def openPDF(self, filename):
-        if sys.platform == "win32":
-           os.startfile(filename)
+
+        if sys.platform == 'linux2':
+            subprocess.call(["xdg-open", filename])
         else:
-            opener = "open" if sys.platform == "darwin" else "xdg-open"
-            subprocess.call([opener, filename])
+            os.startfile(filename)
 
 
 class ParametersWin(Frame):
@@ -308,8 +306,6 @@ class ParametersWin(Frame):
         self.ancestor = ancestor
         self.values = ancestor.values
         # print ancestor.values
-        label = Label(self, text="Edit rules")
-        label.pack(side="bottom", fill="x", pady=10)
         self.init_window()
 
     def init_window(self):
@@ -328,36 +324,33 @@ class ParametersWin(Frame):
 
         ################## TAB ADD
 
-        Label(self.master, text="Add new rule by entering the rule name, symptom and the malfunctions").pack()
+        lab = Label(self.tabAdd, text="Add new rule by entering the rule name, symptom and the malfunctions", anchor="w")
+        lab.pack(side=TOP, fill=X, pady=10, padx=15)
 
         # entry to add malfunction
         self.e = Entry(self.tabAdd)
-        self.e.pack()
-        self.LHS = Text(self.tabAdd,height=12, width=50)
+        self.e.pack(pady=10)
+        self.LHS = Text(self.tabAdd, height=12, width=50)
         self.LHS.pack()
         self.e.delete(0, END)
         self.e.insert(0, "add-rule-name")
 
-        self.RHS = Text(self.tabAdd,height=12, width=50)
+        self.RHS = Text(self.tabAdd, height=12, width=50)
         self.RHS.pack()
 
-        self.but = Button(self.tabAdd, text='add', width=15, height=5,
-                             command=lambda: self.add_rule(self.e.get(),self.LHS.get(0.0, END), self.RHS.get(0.0, END)))
-        self.but.pack(side="bottom", padx=0, pady=0)
+        self.but = Button(self.tabAdd, text='Add', width=15, height=2,
+                             command=lambda: self.add_rule(self.e.get(), self.LHS.get(0.0, END), self.RHS.get(0.0, END)))
+        self.but.pack(side="bottom", padx=0, pady=30)
 
         self.RHS.insert(0.0, "add possible malfunction")
         self.LHS.insert(0.0, "add sypmtom")
 
         ################## TAB EDIT
-        # self.symptom = StringVar()
-        # self.combo_one = ttk.Combobox(self.tabEdit, textvariable=self.symptom, state='readonly')
-        # self.combo_one.configure(values=self.values)
-        # self.combo_one.pack()
         # Load the whole file in a text
         self.file = Text(self.tabEdit, height=28, width=65)
-        self.file.pack()#x=101,y=101, height=200, width=200)
-        self.fileButton = Button(self.tabEdit, text="Edit", command=lambda: self.editFile(self.file.get(0.0, END)))
-        self.fileButton.pack()
+        self.file.pack(padx=0, pady=20)
+        self.fileButton = Button(self.tabEdit, text="Edit", width=15, height=2, command=lambda: self.editFile(self.file.get(0.0, END)))
+        self.fileButton.pack(padx=100, pady=10)
         f = open(self.ancestor.filename, 'r')
         for line in f:
             # print line

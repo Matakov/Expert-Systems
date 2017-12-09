@@ -159,7 +159,7 @@
    (assert (Clutch housing damage)))
 
 (defrule MAIN::ClutchNoise
-   (excessive clutch noise)
+   (Excessive clutch noise)
    =>
    (assert (Damaged clutch gear teeth))
    (assert (Worn or warped clutch plates)))
