@@ -256,6 +256,7 @@ class Window(Frame):
             [("CLISP files", "*.clp"),
              ("All files", "*.*")]
         filename = filedialog.askopenfilename(filetypes=mask, title="Select file")
+	self.filename=filename
         if len(filename) > 0:
             clips.Load(filename)
             self.filename = filename
@@ -263,21 +264,28 @@ class Window(Frame):
             self.values = list(set(LHS))
             self.combo_one.configure(values=self.values)
 
-    def client_save(self):
-        file_exists = filedialog.asksaveasfile(title="Save", mode='w', defaultextension=".clp")
-        if file_exists is None:  # asksaveasfile return 'None' if dialog closed with "cancel".
-            return
-        text2save = str(self.text.get(1.0, END))  # starts from `1.0`, not `0.0`
-        file_exists.write(text2save)
-        file_exists.close()
+    def client_save(self):        
+	if self.filename is None:  # asksaveasfile return 'None' if dialog closed with "cancel".
+		file_exists = filedialog.asksaveasfile(title="Save", mode='w', defaultextension=".clp")
+		self.filename = file_exists
+	clips.Run()
+        clips.Save(self.filename)
+	return
 
     def client_saveas(self):
-        filedialog.asksaveasfilename(initialdir="/", title="Save As",
-                                     filetypes=(("CLISP files", "*.clp"), ("ASCII files", "*.txt"), ("all files", "*.*")))
+	cwd = os.getcwd()
+	#print cwd
+        file_exists=filedialog.asksaveasfilename(initialdir=cwd, title="Save As", filetypes=(("CLISP files", "*.clp"), ("ASCII files", "*.txt"), ("all files", "*.*")))
+	self.filename = file_exists
+	clips.Run()
+        clips.Save(self.filename)
 
     def client_exit(self):
         clips.Run()
-        clips.Save("rulez.clp")
+	if self.filename is None:
+        	clips.Save("rulez.clp")
+	else:
+		clips.Save(self.filename)
         self.master.destroy()
         # exit()
 
