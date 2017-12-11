@@ -1,1 +1,23 @@
+# file extensions
 *.pdf
+
+# PyCharm IDE
+.idea/
+
+# specific files and folders
+venv/
+
+# latex
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+
+# latex build
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)

@@ -85,7 +85,7 @@ class Window(Frame):
         file_menu = Menu(menu)
 
         # adds a command to the menu option, calling it exit, and the command it runs on event is client_exit
-        file_menu.add_command(label="New", command=self.client_new)
+        file_menu.add_command(label="New            ", command=self.client_new)
         file_menu.add_command(label="Open", command=self.client_open)
         file_menu.add_command(label="Save", command=self.client_save)
         file_menu.add_command(label="Save As", command=self.client_saveas)
@@ -93,7 +93,7 @@ class Window(Frame):
         file_menu.add_command(label="Exit", command=self.client_exit)
 
         # added "File" to our menu
-        menu.add_cascade(label="File", menu=file_menu)
+        menu.add_cascade(label="    File    ", menu=file_menu)
 
         # create the rule object
         rule_menu = Menu(menu, tearoff=1)
@@ -102,12 +102,12 @@ class Window(Frame):
         # command it runs on event is client_exit
 
         # added "Rules" to our menu
-        menu.add_cascade(label="Rules", menu=rule_menu)
+        menu.add_cascade(label="    Rules   ", menu=rule_menu)
         rule_menu.add_command(label="Add new...", command=self.ruleWin)
 
         # Add another Menu to the Menu Bar and an item
         help_menu = Menu(menu, tearoff=1)
-        menu.add_cascade(label="Help", menu=help_menu)
+        menu.add_cascade(label="    Help    ", menu=help_menu)
         help_menu.add_command(label="Presentation", command=lambda: self.openPDF("test.pdf"))
         help_menu.add_command(label="Documentation", command=lambda: self.openPDF("test.pdf"))
         help_menu.add_separator()
@@ -246,7 +246,8 @@ class Window(Frame):
 
     def client_new(self):
         root = Tk()
-        root.geometry("400x300")
+        root.geometry("600x500")
+        root.resizable(0, 0)
         app = Window(root)
         root.mainloop()
 
@@ -255,28 +256,30 @@ class Window(Frame):
             [("CLISP files", "*.clp"),
              ("All files", "*.*")]
         filename = filedialog.askopenfilename(filetypes=mask, title="Select file")
-        clips.Load(filename)
-        self.filename=filename
-        LHS,RHS=GetValues(filename)
-        self.values = list(set(LHS))#(1, 2, 3, 4, 5)
-        self.combo_one.configure(values=self.values)
+        if len(filename) > 0:
+            clips.Load(filename)
+            self.filename = filename
+            LHS, RHS = GetValues(filename)
+            self.values = list(set(LHS))
+            self.combo_one.configure(values=self.values)
 
     def client_save(self):
-        file_exists = filedialog.asksaveasfile(mode='w', defaultextension=".txt")
-        if file_exists is None:  # asksaveasfile return `None` if dialog closed with "cancel".
+        file_exists = filedialog.asksaveasfile(title="Save", mode='w', defaultextension=".clp")
+        if file_exists is None:  # asksaveasfile return 'None' if dialog closed with "cancel".
             return
         text2save = str(self.text.get(1.0, END))  # starts from `1.0`, not `0.0`
         file_exists.write(text2save)
-        file_exists.close()  # `()` was missing.
+        file_exists.close()
 
     def client_saveas(self):
-        filedialog.asksaveasfilename(initialdir="/", title="Select file",
-                                     filetypes=(("ASCII files", "*.txt"), ("all files", "*.*")))
+        filedialog.asksaveasfilename(initialdir="/", title="Save As",
+                                     filetypes=(("CLISP files", "*.clp"), ("ASCII files", "*.txt"), ("all files", "*.*")))
 
     def client_exit(self):
         clips.Run()
         clips.Save("rulez.clp")
-        exit()
+        self.master.destroy()
+        # exit()
 
     def client_open_directory(self):
         # from  Tkinter import *
@@ -310,7 +313,7 @@ class ParametersWin(Frame):
 
     def init_window(self):
         # changing the title of our master widget
-        self.master.title("Edit rules")
+        self.master.title("Rules")
         self.pack(fill=BOTH, expand=1)
 
         self.tabControl = ttk.Notebook(self) # create Tab Control
@@ -318,8 +321,6 @@ class ParametersWin(Frame):
         self.tabControl.add(self.tabAdd, text=' Add rule ')  # Add the tab
         self.tabEdit = Frame(self.tabControl) # Create a tab
         self.tabControl.add(self.tabEdit, text=' Edit rule ')  # Add the tab
-        # self.tabTwo = Frame(self.tabControl)  # Create a tab
-        # self.tabControl.add(self.tabTwo, text=' Monetary Incentive Delay ')  # Add the tab
         self.tabControl.pack(side="top", expand=1, fill="both")  # Pack to make visible
 
         ################## TAB ADD
