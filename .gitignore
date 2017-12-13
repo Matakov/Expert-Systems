@@ -6,6 +6,8 @@
 
 # specific files and folders
 venv/
+Docs/
+logfile
 
 # latex
 *.aux

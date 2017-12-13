@@ -59,9 +59,9 @@ def GetValues(filename='rulez.clp'):
 # class Window, inheriting from the Frame class.
 class Window(Frame):
     # define settings upon initialization.
-    def __init__(self, master=None):
+    def __init__(self, master):
         # parameters that you want to send through the Frame class.
-        Frame.__init__(self, master)
+        Frame.__init__(self, master=None)
 
         # reference to the master widget, which is the tk window
         self.master = master
@@ -76,6 +76,14 @@ class Window(Frame):
 
         # allowing the widget to take the full space of the root window
         self.pack(fill=BOTH, expand=1)
+
+        self.top = Frame(self.master)
+        self.middle = Frame(self.master)
+        self.bottom = Frame(self.master)
+
+        self.top.pack(side=TOP, fill=BOTH, expand=1)
+        self.middle.pack(side=TOP, fill=X, expand=1, padx=40, pady=10)
+        self.bottom.pack(side=BOTTOM, fill=BOTH, expand=1)
 
         # creating a menu instance
         menu = Menu(self.master)
@@ -113,7 +121,11 @@ class Window(Frame):
         help_menu.add_separator()
         help_menu.add_command(label="About", command=self.msgBox)
 
-        Label(self.master, text="Select symptoms:", font=("Arial", 14), anchor="w").pack(side=TOP, fill=X, pady=10, padx=15)
+        # Text description before combobox
+        lab_ = Label(self.master, text="Select symptoms:", font=("Arial", 14), anchor="w")
+        lab_.pack(in_=self.top, side=TOP, fill=X, pady=10, padx=15)
+
+        # define combobox
         self.symptom = StringVar()
         self.combo_one = ttk.Combobox(self.master, textvariable=self.symptom, state='readonly')
 
@@ -122,15 +134,26 @@ class Window(Frame):
         LHS, RHS = GetValues(self.filename)
         self.LHS = LHS
         self.values = list(set(self.LHS))
-        self.combo_one.configure(values=self.values)
-        self.combo_one.pack(fill=BOTH, padx=20, pady=10, ipadx=5, ipady=5, side=TOP)
 
+        # combobox for symptom display
+        self.combo_one.configure(values=self.values)
+        self.combo_one.pack(in_=self.top, fill=BOTH, padx=20, pady=10, ipadx=5, ipady=5, side=TOP)
+
+        # delete button
         self.del_button = Button(self.master, text='delete symptom', width=15, height=2,
                           command=lambda: self.remove_simptom(self.combo_one.get()))
-        self.del_button.pack()
+        self.del_button.pack(in_=self.middle, side=LEFT, padx=0)
+
+        # run button
         self.run_button = Button(self.master, text='RUN', fg="red", width=15, height=2,
                           command=lambda: self.run())
-        self.run_button.pack()
+        self.run_button.pack(in_=self.middle, side=LEFT, padx=40)
+
+        # reset button
+        self.reset_button = Button(self.master, text='clear output', width=15, height=2,
+                                   command=lambda: self.clear())
+        self.reset_button.pack(in_=self.middle, side=RIGHT, padx=0)
+
 
         # add separator between comboboxes and text area
         ttk.Separator(self.master, orient=HORIZONTAL).pack(side=TOP, pady=10, padx=15, ipadx=300, ipady=5)
@@ -142,6 +165,11 @@ class Window(Frame):
         # value = self.combo_one.get()
         self.combo_one.bind('<<ComboboxSelected>>', self.add_simptom)
         clips.Load(self.filename)
+
+    def clear(self):
+        self.text_area.configure(state='normal')
+        self.text_area.delete('1.0', END)
+        self.text_area.configure(state='disable')
 
     def run(self):
         sys.stdout = open("logfile", "w")
@@ -256,7 +284,7 @@ class Window(Frame):
             [("CLISP files", "*.clp"),
              ("All files", "*.*")]
         filename = filedialog.askopenfilename(filetypes=mask, title="Select file")
-	self.filename=filename
+        self.filename=filename
         if len(filename) > 0:
             clips.Load(filename)
             self.filename = filename
@@ -264,29 +292,30 @@ class Window(Frame):
             self.values = list(set(LHS))
             self.combo_one.configure(values=self.values)
 
-    def client_save(self):        
-	if self.filename is None:  # asksaveasfile return 'None' if dialog closed with "cancel".
-		file_exists = filedialog.asksaveasfile(title="Save", mode='w', defaultextension=".clp")
-		self.filename = file_exists
-	clips.Run()
-        clips.Save(self.filename)
-	return
+    def client_save(self):
+        if self.filename is None:  # asksaveasfile return 'None' if dialog closed with "cancel".
+            file_exists = filedialog.asksaveasfile(title="Save", mode='w', defaultextension=".clp")
+            self.filename = file_exists
+            clips.Run()
+            clips.Save(self.filename)
+        return
 
     def client_saveas(self):
-	cwd = os.getcwd()
-	#print cwd
-        file_exists=filedialog.asksaveasfilename(initialdir=cwd, title="Save As", filetypes=(("CLISP files", "*.clp"), ("ASCII files", "*.txt"), ("all files", "*.*")))
-	self.filename = file_exists
-	clips.Run()
+        cwd = os.getcwd()
+        # print cwd
+        file_exists=filedialog.asksaveasfilename(initialdir=cwd, title="Save As",
+                                                 filetypes=(("CLISP files", "*.clp"), ("ASCII files", "*.txt"), ("all files", "*.*")))
+        self.filename = file_exists
+        clips.Run()
         clips.Save(self.filename)
 
     def client_exit(self):
         clips.Run()
-	if self.filename is None:
-        	clips.Save("rulez.clp")
-	else:
-		clips.Save(self.filename)
-        self.master.destroy()
+        if self.filename is None:
+            clips.Save("rulez.clp")
+        else:
+            clips.Save(self.filename)
+            self.master.destroy()
         # exit()
 
     def client_open_directory(self):
