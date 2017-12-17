@@ -111,11 +111,12 @@ class Window(Frame):
 
         # added "Rules" to our menu
         menu.add_cascade(label="    Rules   ", menu=rule_menu)
-        rule_menu.add_command(label="Add new...", command=self.ruleWin)
+        rule_menu.add_command(label="Add new...     ", command=self.ruleWin)
 
         # Add another Menu to the Menu Bar and an item
         help_menu = Menu(menu, tearoff=1)
         menu.add_cascade(label="    Help    ", menu=help_menu)
+        help_menu.add_command(label="Database", command=lambda: self.openPDF("test.pdf"))
         help_menu.add_command(label="Presentation", command=lambda: self.openPDF("test.pdf"))
         help_menu.add_command(label="Documentation", command=lambda: self.openPDF("test.pdf"))
         help_menu.add_separator()
@@ -318,19 +319,6 @@ class Window(Frame):
             self.master.destroy()
         # exit()
 
-    def client_open_directory(self):
-        # from  Tkinter import *
-        # import Tkinter, Tkconstants, tkFileDialog
-        # root = Tk()
-        # root.directory = tkFileDialog.askdirectory()
-        # print(root.directory)
-        print("proba")
-
-   # def show_frame(self, page_name):
-        # Show a frame for the given page name
-        #frame = self.frames[page_name]
-        #frame.tkraise()
-
     def openPDF(self, filename):
 
         if sys.platform == 'linux2':
@@ -357,7 +345,7 @@ class ParametersWin(Frame):
         self.tabAdd = Frame(self.tabControl)  # Create a tab
         self.tabControl.add(self.tabAdd, text=' Add rule ')  # Add the tab
         self.tabEdit = Frame(self.tabControl) # Create a tab
-        self.tabControl.add(self.tabEdit, text=' Edit rule ')  # Add the tab
+        self.tabControl.add(self.tabEdit, text=' Edit rules ')  # Add the tab
         self.tabControl.pack(side="top", expand=1, fill="both")  # Pack to make visible
 
         ################## TAB ADD
