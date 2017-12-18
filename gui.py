@@ -306,9 +306,10 @@ class Window(Frame):
         # print cwd
         file_exists=filedialog.asksaveasfilename(initialdir=cwd, title="Save As",
                                                  filetypes=(("CLISP files", "*.clp"), ("ASCII files", "*.txt"), ("all files", "*.*")))
-        self.filename = file_exists
-        clips.Run()
-        clips.Save(self.filename)
+	if len(file_exists)!=0:     
+		self.filename = file_exists
+		clips.Run()
+		clips.Save(self.filename)
 
     def client_exit(self):
         clips.Run()
