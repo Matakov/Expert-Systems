@@ -18,6 +18,8 @@ else:
     from tkinter import ttk
     from tkinter import messagebox as mBox
 
+def build(text):
+	clips.SendCommand(text)
 
 def GetValues(filename='rulez.clp'):
     f = open(filename, 'r')
@@ -59,7 +61,7 @@ def GetValues(filename='rulez.clp'):
 # class Window, inheriting from the Frame class.
 class Window(Frame):
     # define settings upon initialization.
-    def __init__(self, master):
+    def __init__(self, master,clips):
         # parameters that you want to send through the Frame class.
         Frame.__init__(self, master=None)
 
@@ -67,10 +69,12 @@ class Window(Frame):
         self.master = master
 
         # window initialization
-        self.init_window()
+        self.init_window(clips)
+	
 
     # creation of init_window
-    def init_window(self):
+    def init_window(self,clips):
+	self.clips=clips
         # changing the title of our master widget
         self.master.title("Fault diagnostics")
 
@@ -165,7 +169,7 @@ class Window(Frame):
 
         # value = self.combo_one.get()
         self.combo_one.bind('<<ComboboxSelected>>', self.add_simptom)
-        clips.Load(self.filename)
+        self.clips.Load(self.filename)
 
     def clear(self):
         self.text_area.configure(state='normal')
@@ -185,7 +189,7 @@ class Window(Frame):
             if inputs != "":
                 # print inputs
                 if inputs != "\n":
-                    clips.Assert("("+inputs+")")
+                    self.clips.Assert("("+inputs+")")
                     # in2 = " ".join(inputs.split())
                     # self.text_area.insert(END, inputs.strip() + "\n")
                 split_data_edited = []
@@ -194,11 +198,11 @@ class Window(Frame):
                     if line != "":
                         if line != "\n":
                             split_data_edited.append(line)
-        clips.Run()
+        self.clips.Run()
 
         lines = []
         answer = []
-        clips.PrintFacts()
+        self.clips.PrintFacts()
 
         sys.stdout = open("/dev/stdout", "w")
         f = open("logfile", 'r')
@@ -215,7 +219,7 @@ class Window(Frame):
                 answer.append(line)
         for line in answer:
             self.text_area.insert(END, line.strip() + "\n")
-        clips.Reset()
+        self.clips.Reset()
 
         # LHS, RHS = GetValues(self.filename)
         # self.values = list(set(LHS))
@@ -287,7 +291,7 @@ class Window(Frame):
         filename = filedialog.askopenfilename(filetypes=mask, title="Select file")
         self.filename=filename
         if len(filename) > 0:
-            clips.Load(filename)
+            self.clips.Load(filename)
             self.filename = filename
             LHS, RHS = GetValues(filename)
             self.values = list(set(LHS))
@@ -297,26 +301,25 @@ class Window(Frame):
         if self.filename is None:  # asksaveasfile return 'None' if dialog closed with "cancel".
             file_exists = filedialog.asksaveasfile(title="Save", mode='w', defaultextension=".clp")
             self.filename = file_exists
-            clips.Run()
-            clips.Save(self.filename)
+            self.clips.Run()
+            self.clips.Save(self.filename)
         return
 
     def client_saveas(self):
         cwd = os.getcwd()
         # print cwd
-        file_exists=filedialog.asksaveasfilename(initialdir=cwd, title="Save As",
-                                                 filetypes=(("CLISP files", "*.clp"), ("ASCII files", "*.txt"), ("all files", "*.*")))
-	if len(file_exists)!=0:     
-		self.filename = file_exists
-		clips.Run()
-		clips.Save(self.filename)
+        file_exists=filedialog.asksaveasfilename(initialdir=cwd, title="Save As",filetypes=(("CLISP files", "*.clp"), ("ASCII files", "*.txt"), ("all files", "*.*")))
+        if len(file_exists)!=0:
+                self.filename = file_exists
+                self.clips.Run()
+                self.clips.Save(self.filename)
 
     def client_exit(self):
-        clips.Run()
+        self.clips.Run()
         if self.filename is None:
-            clips.Save("rulez.clp")
+            self.clips.Save("rulez.clp")
         else:
-            clips.Save(self.filename)
+            self.clips.Save(self.filename)
             self.master.destroy()
         # exit()
 
@@ -365,8 +368,7 @@ class ParametersWin(Frame):
         self.RHS = Text(self.tabAdd, height=12, width=50)
         self.RHS.pack()
 
-        self.but = Button(self.tabAdd, text='Add', width=15, height=2,
-                             command=lambda: self.add_rule(self.e.get(), self.LHS.get(0.0, END), self.RHS.get(0.0, END)))
+        self.but = Button(self.tabAdd, text='Add', width=15, height=2, command=lambda: self.add_rule(self.e.get(), self.LHS.get(0.0, END), self.RHS.get(0.0, END)))
         self.but.pack(side="bottom", padx=0, pady=30)
 
         self.RHS.insert(0.0, "add possible malfunction")
@@ -389,8 +391,14 @@ class ParametersWin(Frame):
         for line in textToSave:
             f.write(line)
         f.close()
-        clips.Clear()
-        clips.Load(self.ancestor.filename)
+        self.ancestor.clips.Clear()
+        self.ancestor.clips.Load(self.ancestor.filename)
+	LHS, RHS = GetValues(self.ancestor.filename)
+        self.ancestor.LHS = LHS
+        self.ancestor.values = list(set(self.ancestor.LHS))
+
+        # combobox for symptom display
+        self.ancestor.combo_one.configure(values=self.ancestor.values)
 
 
     def add_rule(self,name, rule, things):
@@ -403,6 +411,14 @@ class ParametersWin(Frame):
         split_rule = rule.splitlines()
         # data = self.text_area.get(0.0, END)
         split_things = things.splitlines()
+        split_rule=set(split_rule)
+        split_rule=list(split_rule)
+        if '' in split_rule:
+                split_rule.remove('')
+        split_things=set(split_things)
+        split_things=list(split_things)
+        if '' in split_things:
+                split_things.remove('')
         # print name, split_rule, split_things
         stringRHSL = '(assert ('
         stringRHSR = '))'
@@ -411,12 +427,48 @@ class ParametersWin(Frame):
         RHSString = ''
         LHSString = ''
         for i in range(len(split_rule)):
-            LHSString = LHSString + stringLHSL + split_rule[i].encode("utf-8") + stringLHSR
-        for i in range(len(split_things)):
-            RHSString = RHSString + stringRHSL + split_things[i].encode("utf-8") + stringRHSR
+            LHSString = LHSString + "   " + stringLHSL + split_rule[i].encode("utf-8") + stringLHSR + "\n"
+        for j,i in enumerate(range(len(split_things))):
+		if(j<len(split_things)-1):
+			RHSString = RHSString + "   " + stringRHSL + split_things[i].encode("utf-8") + stringRHSR + "\n"
+		else:
+			RHSString = RHSString + "   " + stringRHSL + split_things[i].encode("utf-8") + stringRHSR + ")"
             # clips.BuildRule("user-rule", "(test (eq (python-call py_getvar",RHSString, "the user rule")
-            clips.BuildRule(name, LHSString, RHSString, "the user rule")
-            pass
+        #print(name)
+        #print(LHSString)
+        #print(RHSString)
+	stringBuild = "(defrule MAIN::"+name+"\n"+LHSString+"   =>\n"+RHSString+"\n"
+	print(stringBuild)
+	#build(stringBuild)
+	#self.ancestor.clips.SendCommand(stringBuild)
+	#self.ancestor.clips.Build(stringBuild)
+	#self.ancestor.clips.BuildRule(name,LHSString,RHSString)
+        #clips.BuildRule(name, LHSString, RHSString)
+	###PATCH
+	textToSave = []
+	f = open(self.ancestor.filename, 'r')
+        for line in f:
+            # print line
+            textToSave.append(line)
+        f.close()
+	
+	f = open(self.ancestor.filename, 'w')
+        for line in textToSave:
+            f.write(line)
+	for line in stringBuild.splitlines():
+	    f.write(line)
+	    f.write("\n")
+        f.close()
+        self.ancestor.clips.Clear()
+        self.ancestor.clips.Load(self.ancestor.filename)
+	LHS, RHS = GetValues(self.ancestor.filename)
+        self.ancestor.LHS = LHS
+        self.ancestor.values = list(set(self.ancestor.LHS))
+
+        # combobox for symptom display
+        self.ancestor.combo_one.configure(values=self.ancestor.values)
+
+        return
 
 
 if __name__ == "__main__":
@@ -428,7 +480,7 @@ if __name__ == "__main__":
     root.resizable(0, 0)
 
     # creation of an instance
-    app = Window(root)
+    app = Window(root,clips)
 
     # mainloop
     root.mainloop()
